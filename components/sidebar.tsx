@@ -10,6 +10,7 @@ import {
   Loader2,
   Newspaper,
   Quote,
+  Repeat,
   Settings,
   Star,
   TrendingUp,
@@ -46,6 +47,10 @@ const groups: NavGroup[] = [
   {
     label: 'Beitrag Carousel',
     items: [{ href: '/goldesel-news', label: 'Goldesel News', icon: Newspaper }],
+  },
+  {
+    label: 'Reel Generator',
+    items: [{ href: '/reel-generator/loop-reel', label: 'Loop Reel', icon: Repeat }],
   },
   {
     label: 'Produktion',
