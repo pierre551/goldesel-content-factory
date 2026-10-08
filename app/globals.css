@@ -54,52 +54,49 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Goldesel Content Factory — deep-indigo design system, matched to Goldesel Aktienradar */
+/* Goldesel Content Factory — Goldesel CI palette */
 :root {
   color-scheme: dark;
-  /* deep indigo/navy base ~ rgb(18,16,49) */
-  --background: oklch(0.185 0.055 285);
-  --foreground: oklch(0.97 0.008 280);
-  /* translucent-feel raised surface a step above the base */
-  --card: oklch(0.235 0.05 285);
-  --card-foreground: oklch(0.97 0.008 280);
-  --popover: oklch(0.22 0.05 285);
-  --popover-foreground: oklch(0.97 0.008 280);
-  /* Goldesel gold brand mark */
-  --primary: oklch(0.82 0.14 84);
-  --primary-foreground: oklch(0.2 0.03 70);
-  --secondary: oklch(0.3 0.05 285);
-  --secondary-foreground: oklch(0.97 0.008 280);
-  --muted: oklch(0.28 0.045 285);
-  --muted-foreground: oklch(0.68 0.03 285);
-  --accent: oklch(0.32 0.05 285);
-  --accent-foreground: oklch(0.97 0.008 280);
-  --destructive: oklch(0.63 0.21 18);
-  --destructive-foreground: oklch(0.98 0.01 280);
-  --success: oklch(0.74 0.17 152);
-  --success-foreground: oklch(0.17 0.03 152);
-  --warning: oklch(0.8 0.13 75);
-  --warning-foreground: oklch(0.2 0.03 70);
-  --border: oklch(0.34 0.045 285);
-  --input: oklch(0.34 0.045 285);
-  --ring: oklch(0.6 0.16 285);
-  --chart-1: oklch(0.82 0.14 84);
-  --chart-2: oklch(0.74 0.17 152);
-  --chart-3: oklch(0.63 0.21 18);
-  --chart-4: oklch(0.62 0.19 285);
-  --chart-5: oklch(0.7 0.13 250);
-  /* violet brand accent used by the Aktienradar header / highlights */
-  --brand: oklch(0.62 0.19 285);
-  --brand-foreground: oklch(0.98 0.01 285);
+  --background: #121031;
+  --foreground: #ffffff;
+  --card: #24203f;
+  --card-foreground: #ffffff;
+  --popover: #24203f;
+  --popover-foreground: #ffffff;
+  --primary: #63ffda;
+  --primary-foreground: #121031;
+  --secondary: #38324f;
+  --secondary-foreground: #ffffff;
+  --muted: #38324f;
+  /* readable secondary text derived from white on the CI base */
+  --muted-foreground: color-mix(in oklab, #ffffff 66%, #121031);
+  --accent: #38324f;
+  --accent-foreground: #ffffff;
+  --destructive: #ff6b6b;
+  --destructive-foreground: #121031;
+  --success: #88de6a;
+  --success-foreground: #121031;
+  --warning: #fa9940;
+  --warning-foreground: #121031;
+  --border: #38324f;
+  --input: #514d65;
+  --ring: #63ffda;
+  --chart-1: #63ffda;
+  --chart-2: #88de6a;
+  --chart-3: #fa9940;
+  --chart-4: #63ffda;
+  --chart-5: #514d65;
+  --brand: #63ffda;
+  --brand-foreground: #63ffda;
   --radius: 0.5rem;
-  --sidebar: oklch(0.165 0.05 285);
-  --sidebar-foreground: oklch(0.92 0.01 280);
-  --sidebar-primary: oklch(0.82 0.14 84);
-  --sidebar-primary-foreground: oklch(0.2 0.03 70);
-  --sidebar-accent: oklch(0.3 0.05 285);
-  --sidebar-accent-foreground: oklch(0.98 0.008 280);
-  --sidebar-border: oklch(0.3 0.045 285);
-  --sidebar-ring: oklch(0.6 0.16 285);
+  --sidebar: #1b182f;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #63ffda;
+  --sidebar-primary-foreground: #121031;
+  --sidebar-accent: #24203f;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #38324f;
+  --sidebar-ring: #63ffda;
 }
 
 @layer base {
@@ -112,13 +109,9 @@
 }
 
 @layer utilities {
-  /* violet brand banner gradient, echoing the Aktienradar header */
+  /* CI banner surface (kept for existing usages) */
   .bg-brand-gradient {
-    background-image: linear-gradient(
-      100deg,
-      oklch(0.42 0.14 285) 0%,
-      oklch(0.52 0.19 288) 45%,
-      oklch(0.46 0.17 300) 100%
-    );
+    background-color: #24203f;
+    background-image: linear-gradient(100deg, #24203f 0%, #38324f 100%);
   }
 }
