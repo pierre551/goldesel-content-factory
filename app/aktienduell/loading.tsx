@@ -6,7 +6,7 @@ export default function Loading() {
     <div>
       <PageHeader
         title="Aktienduell"
-        description="Zwei Aktien im direkten Vergleich — die neuesten Aktienduelle von goldesel.de, live abgerufen."
+        description="Zwei Aktien im direkten Vergleich – die neuesten Aktienduelle von goldesel.de."
       />
       <div className="p-8" role="status">
         <AktienduellSkeleton />

@@ -341,7 +341,6 @@ function CarouselDashboardCard({ item }: { item: UiProductionItem }) {
                     src={slot.imageUrl || '/placeholder.svg'}
                     alt={`Slide ${i + 1}`}
                     className="h-full w-full object-cover"
-                    crossOrigin="anonymous"
                   />
                 </div>
               ) : (

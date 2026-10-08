@@ -55,7 +55,7 @@ function pickArticle(item: unknown): GoldeselArticle | null {
   const id = slugFromUrl(url)
   if (!id) return null
 
-  const img = str(src.previewImg)
+  const img = str(src.previewImg) ?? str(src.thumbnail)
   return {
     id,
     url,

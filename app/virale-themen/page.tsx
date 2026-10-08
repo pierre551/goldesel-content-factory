@@ -1,6 +1,6 @@
 import { PageHeader } from '@/components/primitives'
 import { ViralTopics } from '@/components/viral-topics'
-import { getLatestViralRounds, viralArticleId, VIRAL_TOPIC_COUNT } from '@/lib/viral-topics'
+import { getLatestViralRounds, viralArticleId } from '@/lib/viral-topics'
 import { VIRAL_PROMPTS } from '@/lib/viral-prompts'
 import { getCarouselStatusByArticleIds } from '@/lib/carousel'
 
@@ -31,7 +31,6 @@ export default async function ViraleThemenPage() {
       />
       <ViralTopics
         areas={VIRAL_PROMPTS}
-        topicCount={VIRAL_TOPIC_COUNT}
         initialRounds={rounds}
         initialBeitragStatus={beitragStatus}
         setupHint={result.ok ? null : result.setupHint}
