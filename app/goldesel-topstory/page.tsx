@@ -1,18 +1,24 @@
-import { Award } from 'lucide-react'
-import { ComingSoon, PageHeader } from '@/components/primitives'
+import { PageHeader } from '@/components/primitives'
+import { GoldeselTopstoryList } from '@/components/goldesel-topstory-list'
+import { fetchGoldeselTopstories } from '@/lib/goldesel-topstories'
 
 export const metadata = { title: 'Goldesel Topstory · Content Factory' }
+export const dynamic = 'force-dynamic'
 
-export default function GoldeselTopstoryPage() {
+export default async function GoldeselTopstoryPage() {
+  const result = await fetchGoldeselTopstories()
+
   return (
     <div>
       <PageHeader
         title="Goldesel Topstory"
-        description="Die wichtigste Geschichte des Tages von goldesel.de als hervorgehobenes Content-Format."
+        description="Die zehn neuesten Topstories von goldesel.de — live abgerufen."
       />
-      <ComingSoon
-        icon={Award}
-        note="Die Topstory wird aus dem Goldesel-Artikelpool ausgewählt und als Premium-Beitrag produziert. Die Anbindung folgt."
+      <GoldeselTopstoryList
+        initialData={
+          result.ok ? { topstories: result.topstories, fetchedAt: result.fetchedAt } : null
+        }
+        initialError={result.ok ? null : result.message}
       />
     </div>
   )
