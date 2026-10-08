@@ -390,7 +390,6 @@ export function ProductionBoard() {
                               src={g.imageUrl || '/placeholder.svg'}
                               alt={`${item.company} Generierung ${g.version ?? ''}`}
                               className="h-full w-full object-cover"
-                              crossOrigin="anonymous"
                             />
                           ) : (
                             <div className="flex h-full w-full items-center justify-center">
@@ -436,7 +435,6 @@ function StoryProductionCard({ item }: { item: UiProductionItem }) {
               src={image || '/placeholder.svg'}
               alt="Story-Vorschau"
               className="h-full w-full object-cover"
-              crossOrigin="anonymous"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-muted-foreground">
@@ -532,7 +530,6 @@ function CarouselProductionCard({ item }: { item: UiProductionItem }) {
                   src={slot.imageUrl || '/placeholder.svg'}
                   alt={`Slide ${i + 1}`}
                   className="h-full w-full object-cover"
-                  crossOrigin="anonymous"
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center text-muted-foreground">

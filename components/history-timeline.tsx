@@ -159,7 +159,6 @@ export function HistoryTimeline() {
                             src={preview || '/placeholder.svg'}
                             alt={`Vorschau ${item.company}`}
                             className="h-full w-full object-cover"
-                            crossOrigin="anonymous"
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center text-[10px] text-muted-foreground">
@@ -237,7 +236,6 @@ function CarouselHistoryCard({
                 src={preview || '/placeholder.svg'}
                 alt={`Vorschau ${item.headline}`}
                 className="h-full w-full object-cover"
-                crossOrigin="anonymous"
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-[10px] text-muted-foreground">

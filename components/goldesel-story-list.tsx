@@ -236,7 +236,6 @@ export function GoldeselStoryList({
                       src={article.image || '/placeholder.svg'}
                       alt={article.title}
                       className="h-full w-full object-cover"
-                      crossOrigin="anonymous"
                       loading="lazy"
                     />
                   ) : (

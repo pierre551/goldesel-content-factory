@@ -14,20 +14,14 @@ export function PageHeader({
   actions?: ReactNode
 }) {
   return (
-    <header className="flex flex-col gap-4 border-b border-border px-8 py-6 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-start gap-3">
-        <span
-          aria-hidden
-          className="mt-1 h-8 w-1 shrink-0 rounded-full bg-brand"
-        />
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-balance">{title}</h1>
-          {description && (
-            <p className="mt-1 text-sm text-muted-foreground text-pretty">{description}</p>
-          )}
-        </div>
+    <header className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3 px-8 pt-8">
+      <div className="flex min-w-0 flex-1 basis-80 flex-col gap-1">
+        <h1 className="text-[1.8rem] font-semibold leading-tight tracking-tight text-foreground text-balance">
+          {title}
+        </h1>
+        {description && <p className="text-sm leading-relaxed text-muted-foreground text-pretty">{description}</p>}
       </div>
-      {actions && <div className="flex items-center gap-3">{actions}</div>}
+      {actions && <div className="ml-auto flex shrink-0 items-center gap-3 pt-1">{actions}</div>}
     </header>
   )
 }

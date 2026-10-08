@@ -4,6 +4,7 @@ import { VIRAL_PROMPT_IDS, type ViralPromptId } from '@/lib/viral-prompts'
 import { buildViralPrompt } from '@/lib/viral-prompt-texts'
 
 export const VIRAL_TOPIC_COUNT = 4
+export const VIRAL_TOPIC_COUNTS = [1, 2, 4, 8] as const
 export const VIRAL_TOPICS_TABLE = 'viral_topic_rounds'
 export const VIRAL_SETUP_SCRIPT = 'scripts/005_create_viral_topic_rounds.sql'
 
@@ -216,6 +217,7 @@ export async function researchViralTopics(
   apiKey: string,
   model: string,
   promptId: ViralPromptId,
+  count: number = VIRAL_TOPIC_COUNT,
 ): Promise<ViralTopic[]> {
   const res = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
@@ -223,7 +225,7 @@ export async function researchViralTopics(
     body: JSON.stringify({
       model,
       tools: [{ type: 'web_search', user_location: { type: 'approximate', country: 'DE' } }],
-      input: buildViralPrompt(promptId, VIRAL_TOPIC_COUNT),
+      input: buildViralPrompt(promptId, count),
       text: { format: { type: 'json_schema', name: 'viral_topics', strict: true, schema: topicSchema } },
     }),
   })
@@ -286,7 +288,7 @@ export async function researchViralTopics(
         })),
     }))
     .filter((t) => t.headline && t.summary && t.slides.length === 4 && t.sources.length > 0)
-    .slice(0, VIRAL_TOPIC_COUNT)
+    .slice(0, count)
 
   const reason = clean(parsed.shortfallReason)
   if (topics.length === 0) {
@@ -296,9 +298,9 @@ export async function researchViralTopics(
         : 'Keine Themen mit belegbaren Quellen gefunden. Bitte erneut versuchen.',
     )
   }
-  if (topics.length < VIRAL_TOPIC_COUNT) {
+  if (topics.length < count) {
     topics[0].roundShortfall =
-      reason || `Nur ${topics.length} von ${VIRAL_TOPIC_COUNT} Themen mit belegbaren Quellen und vollständigem Entwurf.`
+      reason || `Nur ${topics.length} von ${count} Themen mit belegbaren Quellen und vollständigem Entwurf.`
   }
   return topics
 }

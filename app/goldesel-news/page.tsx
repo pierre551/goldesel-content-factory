@@ -6,9 +6,8 @@ import { getCarouselStatusByArticleIds } from '@/lib/carousel'
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: 'Goldesel Artikel · Carousel · Content Factory',
-  description:
-    'Veröffentlichte Goldesel-Artikel — starte pro Artikel ein 5-Slide Instagram-Carousel.',
+  title: 'Goldesel Artikel · Content Factory',
+  description: 'Veröffentlichte Goldesel-Artikel – pro Artikel Beitrag oder Reel erstellen.',
 }
 
 export default async function GoldeselNewsPage() {
@@ -20,10 +19,6 @@ export default async function GoldeselNewsPage() {
 
   return (
     <div>
-      <PageHeader
-        title="Goldesel Artikel · Carousel"
-        description="Veröffentlichte Artikel von goldesel.de — starte pro Artikel ein 5-Slide Instagram-Carousel (1080×1350) über die GrokBot-Produktion. Dieselben Artikel bleiben unabhängig davon für die Story verfügbar."
-      />
       <GoldeselNewsList
         initialArticles={articles.map((a) => ({
           id: a.id,

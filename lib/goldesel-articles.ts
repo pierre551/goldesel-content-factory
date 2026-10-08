@@ -174,21 +174,25 @@ export async function syncArticlesFromSource(): Promise<SyncResult> {
   const ids = live.map((a) => a.id)
   const { data: existing, error: existErr } = await db
     .from('goldesel_articles')
-    .select('id')
+    .select('id, image')
     .in('id', ids)
   if (existErr) {
     return notPersisted(
       'Tabelle goldesel_articles fehlt (Migration 004) — Liste nur live geladen, nicht gespeichert.',
     )
   }
-  const existingIds = new Set((existing ?? []).map((r: { id: string }) => r.id))
+  const storedImage = new Map(
+    (existing ?? []).map((r: { id: string; image: string | null }) => [r.id, r.image] as const),
+  )
+  const existingIds = new Set(storedImage.keys())
 
   const rows = live.map((a) => {
     const row: Record<string, unknown> = {
       id: a.id,
       url: a.url,
       title: a.title,
-      image: a.image,
+      // Fill missing images from the feed, but never wipe a stored one.
+      image: a.image ?? storedImage.get(a.id) ?? null,
       published_at: a.publishedAt,
       isin: a.isin,
       teaser: a.teaser,

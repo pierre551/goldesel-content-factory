@@ -73,7 +73,7 @@ function pickDuel(item: unknown): GoldeselAktienduell | null {
   const id = new URL(url).pathname.replace(/\/$/, '').split('/').pop()
   if (!id) return null
 
-  const img = str(src.previewImg)
+  const img = str(src.previewImg) ?? str(src.thumbnail)
   return {
     id,
     url,

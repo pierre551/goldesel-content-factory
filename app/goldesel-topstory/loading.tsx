@@ -6,7 +6,7 @@ export default function Loading() {
     <div>
       <PageHeader
         title="Goldesel Topstory"
-        description="Die zehn neuesten Topstories von goldesel.de — live abgerufen."
+        description="Die zehn neuesten redaktionellen Topstories von goldesel.de."
       />
       <div className="p-8" role="status">
         <TopstorySkeleton />

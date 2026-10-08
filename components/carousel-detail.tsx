@@ -263,7 +263,6 @@ export function CarouselDetail({ id }: { id: string }) {
                     src={slide.image_url || '/placeholder.svg'}
                     alt={`Slide ${slide.slide_index}`}
                     className="h-full w-full object-cover"
-                    crossOrigin="anonymous"
                   />
                 ) : (
                   <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-muted-foreground">
