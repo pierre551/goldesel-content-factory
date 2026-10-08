@@ -40,7 +40,7 @@ const groups: NavGroup[] = [
       { href: '/virale-themen', label: 'Virale Themen', icon: Flame },
       { href: '/analysten-ratings', label: 'Analysten Ratings', icon: Star },
       { href: '/aktienduell', label: 'Aktienduell', icon: Swords },
-      { href: '/goldesel-news', label: 'Goldesel News', icon: Newspaper },
+      { href: '/goldesel-news', label: 'Goldesel Artikel', icon: Newspaper },
       { href: '/goldesel-topstory', label: 'Goldesel Topstory', icon: Award },
       { href: '/zitate', label: 'Zitate', icon: Quote, soon: true },
       { href: '/termine-weekly', label: 'Termine Weekly', icon: CalendarDays, soon: true },

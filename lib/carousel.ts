@@ -2,7 +2,7 @@ import 'server-only'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 /**
- * Data layer for the Goldesel News Carousel workflow.
+ * Data layer for the Goldesel Artikel Carousel workflow.
  *
  * Carousels are stored in dedicated tables (see
  * scripts/001_create_goldesel_carousel.sql) but surfaced through the SAME
@@ -476,7 +476,7 @@ function toUiItem(prod: CarouselProductionRow, slides: CarouselSlideRow[]): Caro
     headline: prod.title,
     status: prod.status,
     createdAt: prod.created_at ?? null,
-    contentType: isStory ? 'Goldesel News / Story' : 'Goldesel Carousel',
+    contentType: isStory ? 'Goldesel Artikel / Story' : 'Goldesel Carousel',
     resultUrl: null,
     slideCount: prod.slide_count ?? (isStory ? 1 : CAROUSEL_SLIDE_COUNT),
     slidesDone: ordered.filter((s) => s.image_url).length,

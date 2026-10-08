@@ -161,7 +161,7 @@ export function CarouselDetail({ id }: { id: string }) {
           <div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span className="rounded-full bg-brand/15 px-2 py-px font-medium text-brand-foreground">
-                {isStory ? 'Goldesel News / Story' : 'Goldesel Carousel'}
+                {isStory ? 'Goldesel Artikel / Story' : 'Goldesel Carousel'}
               </span>
               <span className="flex items-center gap-1">
                 <Clock className="h-3.5 w-3.5" />
