@@ -1,18 +1,22 @@
-import { Swords } from 'lucide-react'
-import { ComingSoon, PageHeader } from '@/components/primitives'
+import { PageHeader } from '@/components/primitives'
+import { AktienduellList } from '@/components/aktienduell-list'
+import { fetchGoldeselAktienduelle } from '@/lib/goldesel-aktienduelle'
 
 export const metadata = { title: 'Aktienduell · Content Factory' }
+export const dynamic = 'force-dynamic'
 
-export default function AktienduellPage() {
+export default async function AktienduellPage() {
+  const result = await fetchGoldeselAktienduelle()
+
   return (
     <div>
       <PageHeader
         title="Aktienduell"
-        description="Zwei Aktien im direkten Vergleich – Kennzahlen, Performance und Analystenmeinungen als Content-Format."
+        description="Zwei Aktien im direkten Vergleich — die neuesten Aktienduelle von goldesel.de, live abgerufen."
       />
-      <ComingSoon
-        icon={Swords}
-        note="Hier werden zwei Werte gegenübergestellt und als Duell-Beitrag aufbereitet. Die Datenanbindung wird als Nächstes ergänzt."
+      <AktienduellList
+        initialData={result.ok ? { duels: result.duels, fetchedAt: result.fetchedAt } : null}
+        initialError={result.ok ? null : result.message}
       />
     </div>
   )
