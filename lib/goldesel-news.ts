@@ -1,15 +1,19 @@
 import 'server-only'
 
 /**
- * Server-side reader for published Goldesel News articles.
+ * Server-side reader for published Goldesel articles.
  *
- * goldesel.de/aktien/news exposes no JSON API and no NewsArticle structured
- * data — only server-rendered <article> markup — so we parse that HTML here on
- * the server (never in the browser). Fully defensive: any failure or markup
- * change degrades to an empty list rather than throwing.
+ * Uses the goldesel.de JSON endpoint. SECURITY: the upstream response carries
+ * additional account/user data that must never leave this function. Only the
+ * whitelisted article fields (headline, previewImg, previewText, publishDate,
+ * directLink) are copied into a fresh object; the raw payload is never
+ * returned, logged, cached (`cache: 'no-store'`) or persisted.
  */
 
-const SOURCE_URL = 'https://goldesel.de/aktien/news'
+const SOURCE_URL =
+  'https://goldesel.de/api/app/content/getblogposts?take=20&lastId=0&contentType=1&onlyFavorite=false&subCategoryId=0'
+const SITE_ORIGIN = 'https://goldesel.de'
+const MAX_ARTICLES = 20
 
 export interface GoldeselArticle {
   id: string
@@ -18,109 +22,89 @@ export interface GoldeselArticle {
   image: string | null
   publishedAt: string | null
   isin: string | null
+  teaser: string | null
 }
 
-function decodeEntities(s: string): string {
-  return s
-    // Numeric entities first (decimal &#252; and hex &#xFC;).
-    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
-    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(parseInt(n, 10)))
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'")
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&nbsp;/g, ' ')
-    // Ampersand last so it can't double-decode the entities above.
-    .replace(/&amp;/g, '&')
-    .replace(/\s+/g, ' ')
-    .trim()
+function str(v: unknown): string | null {
+  return typeof v === 'string' && v.trim() ? v.trim() : null
 }
 
-function absoluteUrl(u: string): string {
-  if (!u) return u
-  if (u.startsWith('//')) return `https:${u}`
-  if (u.startsWith('/')) return `https://goldesel.de${u}`
-  return u
+function absoluteUrl(u: string): string | null {
+  try {
+    const url = new URL(u, SITE_ORIGIN)
+    return url.protocol === 'https:' || url.protocol === 'http:' ? url.toString() : null
+  } catch {
+    return null
+  }
 }
 
-function titleFromSlug(id: string): string {
-  return id
-    .replace(/-/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase())
-    .trim()
+function slugFromUrl(url: string): string | null {
+  const slug = new URL(url).pathname.replace(/\/$/, '').split('/').pop()
+  return slug || null
+}
+
+/** Copies ONLY the explicitly allowed article fields out of one upstream item. */
+function pickArticle(item: unknown): GoldeselArticle | null {
+  if (!item || typeof item !== 'object') return null
+  const src = item as Record<string, unknown>
+
+  const title = str(src.headline)
+  const link = str(src.directLink)
+  const url = link ? absoluteUrl(link) : null
+  if (!title || !url) return null
+  const id = slugFromUrl(url)
+  if (!id) return null
+
+  const img = str(src.previewImg)
+  return {
+    id,
+    url,
+    title,
+    image: img ? absoluteUrl(img) : null,
+    publishedAt: str(src.publishDate),
+    isin: null,
+    teaser: str(src.previewText),
+  }
 }
 
 export async function fetchGoldeselNews(): Promise<GoldeselArticle[]> {
   try {
     const res = await fetch(SOURCE_URL, {
       headers: {
+        Accept: 'application/json',
         'User-Agent': 'Mozilla/5.0 (compatible; GoldeselContentFactory/1.0)',
       },
-      // Cache for 5 minutes so the page is fast and we are polite to the source.
-      next: { revalidate: 300 },
+      cache: 'no-store',
     })
     if (!res.ok) {
-      console.log('[v0] goldesel news HTTP', res.status)
+      console.error('goldesel articles API HTTP', res.status)
       return []
     }
-    const html = await res.text()
-    const items: GoldeselArticle[] = []
-    const seen = new Set<string>()
-
-    const articleRe = /<article\b[^>]*>([\s\S]*?)<\/article>/gi
-    let m: RegExpExecArray | null
-    while ((m = articleRe.exec(html))) {
-      const outer = m[0]
-      const inner = m[1]
-
-      const href =
-        (outer.match(/href="([^"]*\/aktien\/news\/[^"#?]+)"/i) ??
-          inner.match(/href="([^"]*\/aktien\/news\/[^"#?]+)"/i))?.[1]
-      if (!href) continue
-
-      const url = absoluteUrl(href)
-      const id =
-        url
-          .replace(/[#?].*$/, '')
-          .replace(/\/$/, '')
-          .split('/')
-          .pop() || url
-      if (!id || id === 'news' || seen.has(id)) continue
-
-      const rawTitle =
-        inner.match(/<img[^>]+alt="([^"]+)"/i)?.[1] ??
-        inner.match(/<h[1-4][^>]*>([\s\S]*?)<\/h[1-4]>/i)?.[1] ??
-        inner.match(/\/aktien\/news\/[^"]+"[^>]*>([\s\S]*?)<\/a>/i)?.[1] ??
-        ''
-      let title = decodeEntities(rawTitle.replace(/<[^>]+>/g, ' '))
-      if (!title || title.length < 6) title = titleFromSlug(id)
-
-      const rawImg =
-        inner.match(/<img[^>]+(?:data-src|data-lazy-src|src)="([^"]+)"/i)?.[1] ?? ''
-      const image = rawImg ? absoluteUrl(rawImg) : null
-
-      const rawDate =
-        inner.match(/datetime="([^"]+)"/i)?.[1] ??
-        inner.match(/<time[^>]*>([\s\S]*?)<\/time>/i)?.[1] ??
-        null
-      const publishedAt = rawDate ? decodeEntities(rawDate) : null
-
-      const rawIsin =
-        outer.match(/data-isins?="([^"]+)"/i)?.[1] ??
-        inner.match(/\b([A-Z]{2}[A-Z0-9]{9}\d)\b/)?.[1] ??
-        null
-      const isin = rawIsin ? rawIsin.split(/[,\s]/)[0] : null
-
-      items.push({ id, url, title, image, publishedAt, isin })
-      seen.add(id)
-      if (items.length >= 30) break
+    const payload: unknown = await res.json()
+    if (!Array.isArray(payload)) {
+      console.error('goldesel articles API: unexpected response shape')
+      return []
     }
 
-    return items
+    const seen = new Set<string>()
+    const articles: GoldeselArticle[] = []
+    for (const item of payload) {
+      const article = pickArticle(item)
+      if (!article || seen.has(article.id)) continue
+      seen.add(article.id)
+      articles.push(article)
+      if (articles.length >= MAX_ARTICLES) break
+    }
+    articles.sort((a, b) => {
+      const ta = a.publishedAt ? Date.parse(a.publishedAt) : 0
+      const tb = b.publishedAt ? Date.parse(b.publishedAt) : 0
+      return tb - ta
+    })
+    return articles
   } catch (err) {
-    console.log(
-      '[v0] goldesel news fetch error:',
-      err instanceof Error ? err.message : err,
+    console.error(
+      'goldesel articles API fetch error:',
+      err instanceof Error ? err.message : 'unknown error',
     )
     return []
   }

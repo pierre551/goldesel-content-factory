@@ -115,7 +115,6 @@ export async function getStoryArticles(limit = 20): Promise<StoryArticlesResult>
   const articles: PooledArticle[] = live.slice(0, limit).map((a) => ({
     ...a,
     ticker: null,
-    teaser: null,
     firstSeenAt: null,
     syncedAt: null,
   }))
@@ -126,6 +125,10 @@ export interface SyncResult {
   ok: boolean
   count: number
   inserted: number
+  /** Whether the fresh list was written to the pool. */
+  persisted: boolean
+  /** Sanitized (whitelisted) articles from the fresh API read. */
+  articles: GoldeselArticle[]
   message?: string
 }
 
@@ -133,14 +136,38 @@ export interface SyncResult {
  * Manual / scheduled sync: live-read the source and upsert into the pool. This
  * is the ONLY path (besides a scheduled job hitting the same route) that may
  * replace/update the pool. Existing rows keep their first_seen_at.
+ *
+ * When the pool table is unavailable the fresh list is still returned
+ * (persisted: false) so "Aktualisieren" always reflects the current API.
  */
 export async function syncArticlesFromSource(): Promise<SyncResult> {
   const live = await fetchGoldeselNews()
   if (live.length === 0) {
-    return { ok: false, count: 0, inserted: 0, message: 'Quelle lieferte keine Artikel.' }
+    return {
+      ok: false,
+      count: 0,
+      inserted: 0,
+      persisted: false,
+      articles: [],
+      message: 'Quelle lieferte keine Artikel.',
+    }
   }
 
-  const db = createAdminClient()
+  const notPersisted = (message: string): SyncResult => ({
+    ok: true,
+    count: live.length,
+    inserted: 0,
+    persisted: false,
+    articles: live,
+    message,
+  })
+
+  let db: ReturnType<typeof createAdminClient>
+  try {
+    db = createAdminClient()
+  } catch {
+    return notPersisted('Artikel-Pool nicht konfiguriert — Liste nur live geladen.')
+  }
   const ts = new Date().toISOString()
 
   // Which ids already exist — so we can keep their first_seen_at and report new ones.
@@ -150,12 +177,9 @@ export async function syncArticlesFromSource(): Promise<SyncResult> {
     .select('id')
     .in('id', ids)
   if (existErr) {
-    return {
-      ok: false,
-      count: 0,
-      inserted: 0,
-      message: `Artikel-Pool nicht verfügbar: ${existErr.message}`,
-    }
+    return notPersisted(
+      'Tabelle goldesel_articles fehlt (Migration 004) — Liste nur live geladen, nicht gespeichert.',
+    )
   }
   const existingIds = new Set((existing ?? []).map((r: { id: string }) => r.id))
 
@@ -167,6 +191,7 @@ export async function syncArticlesFromSource(): Promise<SyncResult> {
       image: a.image,
       published_at: a.publishedAt,
       isin: a.isin,
+      teaser: a.teaser,
       source: 'goldesel_news',
       synced_at: ts,
     }
@@ -179,14 +204,9 @@ export async function syncArticlesFromSource(): Promise<SyncResult> {
     .from('goldesel_articles')
     .upsert(rows, { onConflict: 'id' })
   if (upErr) {
-    return {
-      ok: false,
-      count: 0,
-      inserted: 0,
-      message: `Artikel-Pool konnte nicht aktualisiert werden: ${upErr.message}`,
-    }
+    return notPersisted('Artikel-Pool konnte nicht aktualisiert werden — Liste nur live geladen.')
   }
 
   const inserted = rows.filter((r) => r.first_seen_at === ts).length
-  return { ok: true, count: rows.length, inserted }
+  return { ok: true, count: rows.length, inserted, persisted: true, articles: live }
 }

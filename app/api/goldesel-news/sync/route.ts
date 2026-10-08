@@ -6,9 +6,9 @@ export const dynamic = 'force-dynamic'
 /**
  * POST /api/goldesel-news/sync
  *
- * Manual "Artikel aktualisieren" action (and the same route a scheduled job can
- * hit): live-reads goldesel.de and replaces/updates the persisted article pool.
- * This is the ONLY way the pool changes — a plain page load never writes it.
+ * Manual "Aktualisieren" action (and the same route a scheduled job can hit):
+ * re-reads the goldesel.de article API and updates the persisted pool. Returns
+ * only the sanitized article fields — never the raw upstream payload.
  */
 export async function POST() {
   const result = await syncArticlesFromSource()
@@ -22,5 +22,16 @@ export async function POST() {
     status: 'ok',
     count: result.count,
     inserted: result.inserted,
+    persisted: result.persisted,
+    message: result.message ?? null,
+    articles: result.articles.map((a) => ({
+      id: a.id,
+      url: a.url,
+      title: a.title,
+      image: a.image,
+      publishedAt: a.publishedAt,
+      isin: a.isin,
+      teaser: a.teaser,
+    })),
   })
 }

@@ -6,9 +6,9 @@ import { getStoryStatusByArticleIds } from '@/lib/carousel'
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: 'Goldesel News · Story · Content Factory',
+  title: 'Goldesel Artikel · Story · Content Factory',
   description:
-    'Veröffentlichte Goldesel-News-Artikel — produziere pro Artikel eine vertikale Story (9:16).',
+    'Veröffentlichte Goldesel-Artikel — produziere pro Artikel eine vertikale Story (9:16).',
 }
 
 export default async function GoldeselNewsStoryPage() {
@@ -20,7 +20,7 @@ export default async function GoldeselNewsStoryPage() {
   return (
     <div>
       <PageHeader
-        title="Goldesel News · Story"
+        title="Goldesel Artikel · Story"
         description="Veröffentlichte Artikel von goldesel.de — produziere pro Artikel eine vertikale Story (9:16) über die GrokBot-Produktion. Dieselben Artikel bleiben unabhängig davon für das Beitrag-Carousel verfügbar."
       />
       <GoldeselStoryList

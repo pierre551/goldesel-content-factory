@@ -79,10 +79,12 @@ export function GoldeselNewsList({
   carouselStatus: Record<string, CarouselStatus>
   persisted: boolean
 }) {
-  const [articles] = useState<GoldeselArticle[]>(initialArticles)
+  const [articles, setArticles] = useState<GoldeselArticle[]>(initialArticles)
+  const [isPersisted, setIsPersisted] = useState(persisted)
   const [states, setStates] = useState<Record<string, GenState>>({})
   const [refreshing, setRefreshing] = useState(false)
   const [refreshError, setRefreshError] = useState<string | null>(null)
+  const [refreshNote, setRefreshNote] = useState<string | null>(null)
 
   function stateFor(id: string): GenState {
     return states[id] ?? { phase: 'idle' }
@@ -92,6 +94,7 @@ export function GoldeselNewsList({
     if (refreshing) return
     setRefreshing(true)
     setRefreshError(null)
+    setRefreshNote(null)
     try {
       const res = await fetch('/api/goldesel-news/sync', { method: 'POST' })
       const json = await res.json()
@@ -99,8 +102,14 @@ export function GoldeselNewsList({
         setRefreshError(json.message ?? 'Aktualisierung fehlgeschlagen.')
         return
       }
-      // Pull the freshly persisted pool into the view.
-      window.location.reload()
+      if (json.persisted) {
+        // Reload so production statuses for the fresh pool are read server-side.
+        window.location.reload()
+        return
+      }
+      setArticles(json.articles ?? [])
+      setIsPersisted(false)
+      setRefreshNote(json.message ?? null)
     } catch {
       setRefreshError('Netzwerkfehler bei der Aktualisierung.')
     } finally {
@@ -161,13 +170,13 @@ export function GoldeselNewsList({
           <div className="flex items-center gap-2">
             <Newspaper className="h-4 w-4 shrink-0 text-primary" />
             <span className="font-medium text-foreground">
-              {articles.length} Goldesel News Artikel
+              {articles.length} Goldesel Artikel
             </span>
           </div>
-          {!persisted && (
+          {!isPersisted && (
             <p className="mt-1 pl-6 text-xs text-muted-foreground">
-              Noch nicht im Pool gespeichert — klicke „Aktualisieren“, damit die
-              Liste beim Neuladen erhalten bleibt.
+              {refreshNote ??
+                'Noch nicht im Pool gespeichert — klicke „Aktualisieren“, damit die Liste beim Neuladen erhalten bleibt.'}
             </p>
           )}
           {refreshError && (
@@ -197,8 +206,7 @@ export function GoldeselNewsList({
           <div className="space-y-1.5">
             <p className="text-lg font-semibold">Keine Artikel im Pool</p>
             <p className="mx-auto max-w-md text-sm text-muted-foreground text-pretty">
-              Klicke „Aktualisieren“, um die neuesten Goldesel-News-Artikel zu
-              laden.
+              Klicke „Aktualisieren“, um die neuesten Goldesel-Artikel zu laden.
             </p>
           </div>
         </Card>

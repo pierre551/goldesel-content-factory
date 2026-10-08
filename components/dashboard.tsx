@@ -258,7 +258,7 @@ export function Dashboard() {
             href="/goldesel-news"
             className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
           >
-            Goldesel News
+            Goldesel Artikel
             <ArrowUpRight className="h-4 w-4" />
           </Link>
         </div>
@@ -300,7 +300,7 @@ function CarouselDashboardCard({ item }: { item: UiProductionItem }) {
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Layers className="h-3.5 w-3.5 text-brand-foreground" />
-            Goldesel News
+            Goldesel Artikel
           </div>
           <StatusBadge status={isDone ? 'done' : isFailed ? 'rejected' : 'in_progress'} />
         </div>
