@@ -3,17 +3,18 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
+  Award,
   CalendarClock,
   CalendarDays,
+  Flame,
   History,
   LayoutDashboard,
   Loader2,
   Newspaper,
   Quote,
-  Repeat,
   Settings,
   Star,
-  TrendingUp,
+  Swords,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -34,23 +35,17 @@ const groups: NavGroup[] = [
     items: [{ href: '/', label: 'Dashboard', icon: LayoutDashboard }],
   },
   {
-    label: 'Story Content',
+    label: 'Content Formate',
     items: [
-      { href: '/aktien-news', label: 'Aktien News', icon: TrendingUp },
-      { href: '/story-goldesel-news', label: 'Goldesel News', icon: Newspaper },
-      { href: '/analysten-ratings', label: 'Analysten Ratings', icon: Star, soon: true },
+      { href: '/virale-themen', label: 'Virale Themen', icon: Flame },
+      { href: '/analysten-ratings', label: 'Analysten Ratings', icon: Star },
+      { href: '/aktienduell', label: 'Aktienduell', icon: Swords },
+      { href: '/goldesel-news', label: 'Goldesel News', icon: Newspaper },
+      { href: '/goldesel-topstory', label: 'Goldesel Topstory', icon: Award },
       { href: '/zitate', label: 'Zitate', icon: Quote, soon: true },
       { href: '/termine-weekly', label: 'Termine Weekly', icon: CalendarDays, soon: true },
       { href: '/termine-daily', label: 'Termine Daily', icon: CalendarClock, soon: true },
     ],
-  },
-  {
-    label: 'Beitrag Carousel',
-    items: [{ href: '/goldesel-news', label: 'Goldesel News', icon: Newspaper }],
-  },
-  {
-    label: 'Reel Generator',
-    items: [{ href: '/reel-generator/loop-reel', label: 'Loop Reel', icon: Repeat }],
   },
   {
     label: 'Produktion',
@@ -108,10 +103,11 @@ export function Sidebar() {
                 <Link
                   key={href}
                   href={href}
+                  aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                    'group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-primary',
                     active
-                      ? 'bg-sidebar-accent text-sidebar-foreground'
+                      ? 'bg-sidebar-accent text-sidebar-foreground shadow-[inset_2px_0_0_var(--primary)]'
                       : 'text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground',
                   )}
                 >
@@ -124,7 +120,7 @@ export function Sidebar() {
                   />
                   <span className="flex-1">{label}</span>
                   {soon ? (
-                    <span className="rounded-full bg-muted px-1.5 py-px text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    <span className="rounded-full bg-warning/15 px-1.5 py-px text-[9px] font-semibold uppercase tracking-wide text-warning">
                       Soon
                     </span>
                   ) : active ? (
