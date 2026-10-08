@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { CAROUSEL_CONTENT_TYPE, findActiveCarouselByArticle, setCarouselStatus } from '@/lib/carousel'
-import { getLatestViralRound, viralArticleId } from '@/lib/viral-topics'
+import { findViralTopic, viralArticleId, type ViralTopic } from '@/lib/viral-topics'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,11 +35,15 @@ export async function POST(request: Request) {
     )
   }
 
-  const current = await getLatestViralRound()
-  if (!current.ok) {
-    return NextResponse.json({ status: 'error', message: current.setupHint }, { status: 503 })
+  let topic: ViralTopic | null
+  try {
+    topic = await findViralTopic(topic_id)
+  } catch (err) {
+    return NextResponse.json(
+      { status: 'error', message: err instanceof Error ? err.message : 'Supabase nicht erreichbar.' },
+      { status: 503 },
+    )
   }
-  const topic = current.round?.topics.find((t) => t.id === topic_id)
   if (!topic) {
     return NextResponse.json(
       { status: 'error', message: 'Thema nicht gefunden – bitte Seite neu laden.' },
@@ -120,6 +124,11 @@ export async function POST(request: Request) {
         title: topic.headline,
         summary: topic.summary,
         category: topic.category,
+        topic_area: topic.promptId ?? null,
+        hook: topic.hook ?? null,
+        key_facts: topic.keyFacts ?? [],
+        slides: topic.slides ?? [],
+        image_idea: topic.imageIdea ?? null,
         sources: topic.sources,
         published_at: null,
         source: 'virale_themen',

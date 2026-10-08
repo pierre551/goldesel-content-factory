@@ -1,6 +1,7 @@
 import { PageHeader } from '@/components/primitives'
 import { ViralTopics } from '@/components/viral-topics'
-import { getLatestViralRound, viralArticleId } from '@/lib/viral-topics'
+import { getLatestViralRounds, viralArticleId, VIRAL_TOPIC_COUNT } from '@/lib/viral-topics'
+import { VIRAL_PROMPTS } from '@/lib/viral-prompts'
 import { getCarouselStatusByArticleIds } from '@/lib/carousel'
 
 export const dynamic = 'force-dynamic'
@@ -8,13 +9,13 @@ export const dynamic = 'force-dynamic'
 export const metadata = {
   title: 'Virale Themen · Content Factory',
   description:
-    'Aktuelle Nachrichten, politische Entscheidungen und Gesetzesänderungen mit Wirkung auf Finanzen und Alltag in Deutschland.',
+    'Recherchierte Themen aus Politik & Gesetze, Geld & Alltag, Börse & Unternehmen sowie Tech & Zukunft – mit Reel- und Carousel-Entwurf.',
 }
 
 export default async function ViraleThemenPage() {
-  const result = await getLatestViralRound()
-  const round = result.ok ? result.round : null
-  const topics = round?.topics ?? []
+  const result = await getLatestViralRounds()
+  const rounds = result.ok ? result.rounds : null
+  const topics = rounds ? Object.values(rounds).flatMap((r) => r?.topics ?? []) : []
   const statusByArticle = await getCarouselStatusByArticleIds(topics.map((t) => viralArticleId(t.id)))
   const beitragStatus = Object.fromEntries(
     topics
@@ -26,10 +27,12 @@ export default async function ViraleThemenPage() {
     <div>
       <PageHeader
         title="Virale Themen"
-        description="Acht recherchierte Themen zu Nachrichten, politischen Entscheidungen und Gesetzesänderungen, die Finanzen und Alltag in Deutschland betreffen."
+        description="Vier Redaktionsbereiche mit eigener Recherche: belegte Themen inklusive Hook, Kernfakten, Reel-Entwurf, vier Carousel-Slides und datierten Quellen."
       />
       <ViralTopics
-        initialRound={round}
+        areas={VIRAL_PROMPTS}
+        topicCount={VIRAL_TOPIC_COUNT}
+        initialRounds={rounds}
         initialBeitragStatus={beitragStatus}
         setupHint={result.ok ? null : result.setupHint}
         openAiConfigured={Boolean(process.env.OPENAI_API_KEY)}
